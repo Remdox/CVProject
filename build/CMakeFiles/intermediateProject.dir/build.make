@@ -69,28 +69,28 @@ include CMakeFiles/intermediateProject.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/intermediateProject.dir/flags.make
 
-CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o: CMakeFiles/intermediateProject.dir/flags.make
-CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o: /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/intermediateProject.cpp
-CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o: CMakeFiles/intermediateProject.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o -MF CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o.d -o CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o -c /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/intermediateProject.cpp
+CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o: CMakeFiles/intermediateProject.dir/flags.make
+CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o: /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/src/intermediateProject.cpp
+CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o: CMakeFiles/intermediateProject.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o -MF CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o.d -o CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o -c /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/src/intermediateProject.cpp
 
-CMakeFiles/intermediateProject.dir/intermediateProject.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/intermediateProject.dir/intermediateProject.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/intermediateProject.cpp > CMakeFiles/intermediateProject.dir/intermediateProject.cpp.i
+CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/src/intermediateProject.cpp > CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.i
 
-CMakeFiles/intermediateProject.dir/intermediateProject.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/intermediateProject.dir/intermediateProject.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/intermediateProject.cpp -o CMakeFiles/intermediateProject.dir/intermediateProject.cpp.s
+CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/src/intermediateProject.cpp -o CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.s
 
 # Object files for target intermediateProject
 intermediateProject_OBJECTS = \
-"CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o"
+"CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o"
 
 # External object files for target intermediateProject
 intermediateProject_EXTERNAL_OBJECTS =
 
-intermediateProject: CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o
+intermediateProject: CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o
 intermediateProject: CMakeFiles/intermediateProject.dir/build.make
 intermediateProject: /usr/lib64/libopencv_gapi.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_stitching.so.4.10.0

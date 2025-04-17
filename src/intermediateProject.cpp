@@ -9,25 +9,18 @@
 using namespace std;
 using namespace cv;
 
-vector<Mat> getModels(String pattern){
-    vector<Mat> models;
-    vector<cv::String> modelsFilenames;
-    glob(pattern, modelsFilenames, false);
-    for(int i = 0; i < 59; i++){
-        models.push_back(imread(modelsFilenames[i]));
-    }
-    return models;
-}
-
 // we can use everything in OpenCV except Deep Learning, we can use ML and can explore
 // something different than what we've seen in the lectures (but there are no preferences)
+
+vector<Mat> getModels(String pattern);
 
 int main(int argc, char** argv){
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
-    
+
     }
+    const string WINDOWNAME = "Test image";
     string imgPath     = argv[1];
     string datasetPath = argv[2];
     string labelPath = imgPath;
@@ -39,8 +32,8 @@ int main(int argc, char** argv){
         cerr << "No image given as parameter\n";
         return -1;
     }
-    namedWindow("Test image");
-    imshow("Test image", testImg);
+    namedWindow(WINDOWNAME);
+    imshow(WINDOWNAME, testImg);
     
     vector<Mat> drillModels   = getModels(datasetPath + "035_power_drill/models/*.png");
     vector<Mat> sugarModels   = getModels(datasetPath + "004_sugar_box/models/*.png");
@@ -53,7 +46,6 @@ int main(int argc, char** argv){
     if(labelFile.is_open()){
         getline(labelFile, line);
         labels.push_back(line);
-        cout << line << endl;
     }
     else{
         cerr << "No label file found";
@@ -62,4 +54,15 @@ int main(int argc, char** argv){
 
     waitKey(0);
     return(0);
+}
+
+vector<Mat> getModels(String pattern){
+    const int MODELSCOUNT = 59;
+    vector<Mat> models;
+    vector<cv::String> modelsFilenames;
+    glob(pattern, modelsFilenames, false);
+    for(int i = 0; i < MODELSCOUNT; i++){ // TODO: maybe change this to read all images in the directory without a count limit
+        models.push_back(imread(modelsFilenames[i]));
+    }
+    return models;
 }

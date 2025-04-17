@@ -7,6 +7,6 @@ find_package(OpenCV REQUIRED)
 # Puoi cercare il nome del package da mettere nell'istruzione sul sito di chi ha fatto la libreria. Cerca ad esempio "Using OpenCV with CMake".
 
 # TASK1 (solo OPENCV)
-add_executable(intermediateProject intermediateProject.cpp)
+add_executable(intermediateProject src/intermediateProject.cpp)
 target_include_directories(intermediateProject PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(intermediateProject ${OpenCV_LIBS})

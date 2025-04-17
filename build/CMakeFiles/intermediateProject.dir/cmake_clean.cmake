@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o"
-  "CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o.d"
+  "CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o"
+  "CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o.d"
   "intermediateProject"
   "intermediateProject.pdb"
 )

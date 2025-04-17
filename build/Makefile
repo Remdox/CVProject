@@ -129,29 +129,29 @@ intermediateProject/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/build
 .PHONY : intermediateProject/fast
 
-intermediateProject.o: intermediateProject.cpp.o
-.PHONY : intermediateProject.o
+src/intermediateProject.o: src/intermediateProject.cpp.o
+.PHONY : src/intermediateProject.o
 
 # target to build an object file
-intermediateProject.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/intermediateProject.cpp.o
-.PHONY : intermediateProject.cpp.o
+src/intermediateProject.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o
+.PHONY : src/intermediateProject.cpp.o
 
-intermediateProject.i: intermediateProject.cpp.i
-.PHONY : intermediateProject.i
+src/intermediateProject.i: src/intermediateProject.cpp.i
+.PHONY : src/intermediateProject.i
 
 # target to preprocess a source file
-intermediateProject.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/intermediateProject.cpp.i
-.PHONY : intermediateProject.cpp.i
+src/intermediateProject.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.i
+.PHONY : src/intermediateProject.cpp.i
 
-intermediateProject.s: intermediateProject.cpp.s
-.PHONY : intermediateProject.s
+src/intermediateProject.s: src/intermediateProject.cpp.s
+.PHONY : src/intermediateProject.s
 
 # target to generate assembly for a file
-intermediateProject.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/intermediateProject.cpp.s
-.PHONY : intermediateProject.cpp.s
+src/intermediateProject.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.s
+.PHONY : src/intermediateProject.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... intermediateProject"
-	@echo "... intermediateProject.o"
-	@echo "... intermediateProject.i"
-	@echo "... intermediateProject.s"
+	@echo "... src/intermediateProject.o"
+	@echo "... src/intermediateProject.i"
+	@echo "... src/intermediateProject.s"
 .PHONY : help
 
 
