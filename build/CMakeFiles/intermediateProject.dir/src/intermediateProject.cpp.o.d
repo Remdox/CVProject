@@ -239,4 +239,5 @@ CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o: \
  /usr/include/opencv4/opencv2/imgcodecs.hpp \
  /usr/include/opencv4/opencv2/videoio.hpp \
  /usr/include/opencv4/opencv2/imgproc.hpp \
- /usr/include/opencv4/opencv2/imgproc/segmentation.hpp
+ /usr/include/opencv4/opencv2/imgproc/segmentation.hpp \
+ /home/marco/Scrivania/Mio_Lx/Uni/UniPD/CV/CVProject/src/../include/marco_annunziata.hpp

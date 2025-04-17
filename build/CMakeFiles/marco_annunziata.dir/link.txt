@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmarco_annunziata.a CMakeFiles/marco_annunziata.dir/src/marco_annunziata.cpp.o
+/usr/bin/ranlib libmarco_annunziata.a

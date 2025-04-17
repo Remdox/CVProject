@@ -1,12 +1,28 @@
 cmake_minimum_required(VERSION 2.8)
-project(DisplayImage)
+project(ProjectCV)
 add_compile_options(-Wall -g)
 
-# Trova libreria esterna pre-compilata che poi aggiungiamo al linking con target_link_libraries
 find_package(OpenCV REQUIRED)
-# Puoi cercare il nome del package da mettere nell'istruzione sul sito di chi ha fatto la libreria. Cerca ad esempio "Using OpenCV with CMake".
 
-# TASK1 (solo OPENCV)
+# 1ST LIB
+add_library(marco_annunziata src/marco_annunziata.cpp)
+target_include_directories(marco_annunziata PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(marco_annunziata PUBLIC ${OpenCV_LIBS})
+
+#2ND LIB
+
+
+#3RD LIB
+
+
+# EXE
+
 add_executable(intermediateProject src/intermediateProject.cpp)
-target_include_directories(intermediateProject PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(intermediateProject ${OpenCV_LIBS})
+target_link_libraries(intermediateProject
+    marco_annunziata
+    # ...
+    ${OpenCV_LIBS}
+)

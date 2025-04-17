@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named marco_annunziata
+
+# Build rule for target.
+marco_annunziata: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 marco_annunziata
+.PHONY : marco_annunziata
+
+# fast build rule for target.
+marco_annunziata/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/marco_annunziata.dir/build.make CMakeFiles/marco_annunziata.dir/build
+.PHONY : marco_annunziata/fast
+
+#=============================================================================
 # Target rules for targets named intermediateProject
 
 # Build rule for target.
@@ -153,6 +166,30 @@ src/intermediateProject.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/intermediateProject.dir/build.make CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.s
 .PHONY : src/intermediateProject.cpp.s
 
+src/marco_annunziata.o: src/marco_annunziata.cpp.o
+.PHONY : src/marco_annunziata.o
+
+# target to build an object file
+src/marco_annunziata.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/marco_annunziata.dir/build.make CMakeFiles/marco_annunziata.dir/src/marco_annunziata.cpp.o
+.PHONY : src/marco_annunziata.cpp.o
+
+src/marco_annunziata.i: src/marco_annunziata.cpp.i
+.PHONY : src/marco_annunziata.i
+
+# target to preprocess a source file
+src/marco_annunziata.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/marco_annunziata.dir/build.make CMakeFiles/marco_annunziata.dir/src/marco_annunziata.cpp.i
+.PHONY : src/marco_annunziata.cpp.i
+
+src/marco_annunziata.s: src/marco_annunziata.cpp.s
+.PHONY : src/marco_annunziata.s
+
+# target to generate assembly for a file
+src/marco_annunziata.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/marco_annunziata.dir/build.make CMakeFiles/marco_annunziata.dir/src/marco_annunziata.cpp.s
+.PHONY : src/marco_annunziata.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +199,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... intermediateProject"
+	@echo "... marco_annunziata"
 	@echo "... src/intermediateProject.o"
 	@echo "... src/intermediateProject.i"
 	@echo "... src/intermediateProject.s"
+	@echo "... src/marco_annunziata.o"
+	@echo "... src/marco_annunziata.i"
+	@echo "... src/marco_annunziata.s"
 .PHONY : help
 
 

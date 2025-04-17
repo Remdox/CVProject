@@ -5,6 +5,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include "../include/marco_annunziata.hpp"
 
 using namespace std;
 using namespace cv;
@@ -23,6 +24,9 @@ int main(int argc, char** argv){
     const string WINDOWNAME = "Test image";
     string imgPath     = argv[1];
     string datasetPath = argv[2];
+    const string drillModelsPath = datasetPath + "035_power_drill/models/*.png";
+    const string sugarModelsPath = datasetPath + "004_sugar_box/models/*.png";
+    const string mustardModelsPath = datasetPath + "006_mustard_bottle/models/*.png";
     string labelPath = imgPath;
     labelPath = labelPath.replace(labelPath.find("test_images"), 11, "labels");
     labelPath.replace(labelPath.find("-color.jpg"), 10, "-box.txt");
@@ -35,9 +39,9 @@ int main(int argc, char** argv){
     namedWindow(WINDOWNAME);
     imshow(WINDOWNAME, testImg);
     
-    vector<Mat> drillModels   = getModels(datasetPath + "035_power_drill/models/*.png");
-    vector<Mat> sugarModels   = getModels(datasetPath + "004_sugar_box/models/*.png");
-    vector<Mat> mustardModels = getModels(datasetPath + "006_mustard_bottle/models/*.png");
+    vector<Mat> drillModels   = getModels(drillModelsPath);
+    vector<Mat> sugarModels   = getModels(sugarModelsPath);
+    vector<Mat> mustardModels = getModels(mustardModelsPath);
 
     vector<string> labels;
     string line;

@@ -92,6 +92,7 @@ intermediateProject_EXTERNAL_OBJECTS =
 
 intermediateProject: CMakeFiles/intermediateProject.dir/src/intermediateProject.cpp.o
 intermediateProject: CMakeFiles/intermediateProject.dir/build.make
+intermediateProject: libmarco_annunziata.a
 intermediateProject: /usr/lib64/libopencv_gapi.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_stitching.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_alphamat.so.4.10.0
@@ -129,16 +130,16 @@ intermediateProject: /usr/lib64/libopencv_viz.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_wechat_qrcode.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_xobjdetect.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_xphoto.so.4.10.0
+intermediateProject: /usr/lib64/libopencv_phase_unwrapping.so.4.10.0
+intermediateProject: /usr/lib64/libopencv_optflow.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_highgui.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_datasets.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_plot.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_text.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_ml.so.4.10.0
-intermediateProject: /usr/lib64/libopencv_phase_unwrapping.so.4.10.0
-intermediateProject: /usr/lib64/libopencv_optflow.so.4.10.0
+intermediateProject: /usr/lib64/libopencv_videoio.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_ximgproc.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_video.so.4.10.0
-intermediateProject: /usr/lib64/libopencv_videoio.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_imgcodecs.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_objdetect.so.4.10.0
 intermediateProject: /usr/lib64/libopencv_calib3d.so.4.10.0
