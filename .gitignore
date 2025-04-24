@@ -6,3 +6,4 @@ build/cmake_install.cmake
 build/compile_commands.json
 build/libmarco_annunziata.a
 build/Makefile
+.cache/
