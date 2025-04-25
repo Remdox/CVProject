@@ -3,10 +3,12 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/features2d.hpp>
 #include <iostream>
 #include <vector>
 #include <fstream>
 
-int dummyFunction(int a, int b);
+void getForegroundMask();
+cv::Mat pcaSift(cv::Mat* img, std::vector<cv::Mat> models);
 
 #endif
