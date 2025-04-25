@@ -1,3 +1,4 @@
+#include <opencv2/core/types.hpp>
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -17,7 +18,7 @@ using namespace Shared;
 // we can use everything in OpenCV except Deep Learning, we can use ML and can explore
 // something different from what we've seen the lectures
 
-vector<Mat> getModels(String pattern);
+vector<modelView> getModelViews(string pattern);
 void testMetrics();
 
 int main(int argc, char** argv){
@@ -30,9 +31,9 @@ int main(int argc, char** argv){
     const string WINDOWNAME = "Test image";
     string imgPath     = argv[1];
     string datasetPath = argv[2];
-    const string drillModelsPath   = datasetPath + "035_" + Shared::toString(Shared::ImgObjType::power_drill)    + "/models/*_color.png";
-    const string sugarModelsPath   = datasetPath + "004_" + Shared::toString(Shared::ImgObjType::sugar_box)      + "/models/*_color.png";
-    const string mustardModelsPath = datasetPath + "006_" + Shared::toString(Shared::ImgObjType::mustard_bottle) + "/models/*_color.png";
+    const string drillViewsPath   = datasetPath + "035_" + Shared::toString(Shared::ImgObjType::power_drill)    + "/models/*_color.png";
+    const string sugarViewsPath   = datasetPath + "004_" + Shared::toString(Shared::ImgObjType::sugar_box)      + "/models/*_color.png";
+    const string mustardViewsPath = datasetPath + "006_" + Shared::toString(Shared::ImgObjType::mustard_bottle) + "/models/*_color.png";
 
     string labelPath = imgPath;
     labelPath = labelPath.replace(labelPath.find("test_images"), 11, "labels");
@@ -46,24 +47,34 @@ int main(int argc, char** argv){
     namedWindow(WINDOWNAME);
     imshow(WINDOWNAME, testImg);
 
-    vector<Mat> drillModels   = getModels(drillModelsPath);
-    vector<Mat> sugarModels   = getModels(sugarModelsPath);
-    vector<Mat> mustardModels = getModels(mustardModelsPath);
+    objModel drillModel;
+    objModel sugarModel;
+    objModel mustardModel;
+    drillModel.views   = getModelViews(drillViewsPath);
+    sugarModel.views   = getModelViews(sugarViewsPath);
+    mustardModel.views = getModelViews(mustardViewsPath);
+
     vector<string> labels;
     if(getLabels(&labels, labelPath) == -1){
         cerr << "No label file found";
         return -1;
     }
 
-    Mat testImgKpts = pcaSift(&testImg);
-    imwrite("../output/keypoints.png", testImgKpts);
-    cout << "Loading drill models keypoints.." << endl;
-    vector<Mat> drillKpts   = getModelsKeypoints(drillModels);
-    cout << "Loading sugar models keypoints.." << endl;
-    vector<Mat> sugarKpts   = getModelsKeypoints(sugarModels);
-    cout << "Loading mustard models keypoints.." << endl;
-    vector<Mat> mustardKpts = getModelsKeypoints(mustardModels);
-    imwrite("../output/testKpts.png", drillKpts.at(1));
+    vector<KeyPoint> testImgKpts = SIFT_PCA::detectKeypoints(testImg);
+    Mat outputImg = testImg.clone();
+    drawKeypoints(testImg, testImgKpts, outputImg);
+    imwrite("../output/keypoints.png", outputImg);
+    cout << "Loading drill models descriptors.." << endl;
+    setViewsKeypoints(drillModel);
+    cout << "Loading sugar models descriptors.." << endl;
+    setViewsKeypoints(sugarModel);
+    cout << "Loading mustard models descriptors.." << endl;
+    setViewsKeypoints(mustardModel);
+    outputImg = sugarModel.views.at(14).image.clone();
+    drawKeypoints(sugarModel.views.at(14).image, sugarModel.views.at(14).keypoints, outputImg);
+    imwrite("../output/modelKpts.png", outputImg);
+
+    Mat descriptors;
 
     //Test metrics
     testMetrics();
@@ -89,12 +100,18 @@ void testMetrics(){
     cout << result.toString() << endl;
 }
 
-vector<Mat> getModels(String pattern){
-    vector<Mat> models;
-    vector<cv::String> modelsFilenames;
-    glob(pattern, modelsFilenames, false);
-    for(string modelFilename : modelsFilenames){
-        models.push_back(imread(modelFilename));
+vector<modelView> getModelViews(string pattern){
+    vector<modelView> views;
+    vector<string> viewsFilenames;
+    glob(pattern, viewsFilenames, false);
+    for(string modelFilename : viewsFilenames){
+        modelView view;
+        view.image = imread(modelFilename);
+        if(view.image.empty()){
+            cerr << "No image" << modelFilename << "found" << endl;
+            continue;
+        }
+        views.push_back(view);
     }
-    return models;
+    return views;
 }

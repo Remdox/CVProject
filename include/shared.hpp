@@ -2,6 +2,7 @@
 #define SHARED_HPP
 
 #include <string>
+#include <opencv2/highgui.hpp>
 
 namespace Shared{
     enum class ImgObjType{
