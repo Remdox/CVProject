@@ -5,7 +5,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include "../include/shared.hpp"
 #include "../include/marco_annunziata.hpp"
+#include "../include/hermann_serain.hpp"
 
 using namespace std;
 using namespace cv;
@@ -16,6 +18,7 @@ using namespace cv;
 vector<Mat> getModels(String pattern);
 
 int main(int argc, char** argv){
+
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
