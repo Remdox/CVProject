@@ -8,21 +8,30 @@
 #include <string>
 #include <numeric>
 
+#include "shared.hpp"
+
 using namespace cv;
 using namespace std;
+using namespace Shared;
 
 namespace HermannLib{
 
     class ObjMetric{
         private:
-            ImgObjType type;
-            double IoU;
-            string sourceImg;
-            bool isDetected;
+            ImgObjType _type;
+            double _IoU;
+            string _sourceImg;
+
+        public:
+            ObjMetric(ImgObjType t, double iou, string sImg);
+
+        bool isDetected() const;
+        string toString() const;
+
     };
 
-    double computeIoU(const Rect& a, const Rect& b);
-    double computeMean(double vals[], int length);
+    Rect makeRect(int xmin, int ymin, int xmax, int ymax);
+    ObjMetric computeMetrics(string sourceImg, ImgObjType object, const Rect& a, const Rect& b);
 }
 
 #endif

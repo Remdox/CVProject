@@ -35,8 +35,8 @@ target_link_libraries(hermann_serain PUBLIC ${OpenCV_LIBS})
 
 add_executable(intermediateProject src/intermediateProject.cpp)
 target_link_libraries(intermediateProject
-    shared
     marco_annunziata
     hermann_serain
+    shared #Lasciare shared per ultimo
     ${OpenCV_LIBS}
 )

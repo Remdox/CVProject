@@ -1,4 +1,5 @@
 #include <string>
+#include <stdexcept>
 
 #include "./../include/shared.hpp"
 
@@ -10,5 +11,7 @@ namespace Shared{
             case ImgObjType::mustard_bottle: return "mustard_bottle";
             case ImgObjType::power_drill: return "power_drill";
         }
+
+        throw std::invalid_argument("Shared::toString: valore di ImgObjType non valido");
     }
 }
