@@ -15,55 +15,55 @@ using namespace HermannLib;
 using namespace Shared;
 
 // we can use everything in OpenCV except Deep Learning, we can use ML and can explore
-// something different than what we've seen in the lectures (but there are no preferences)
+// something different from what we've seen the lectures
 
 vector<Mat> getModels(String pattern);
 void testMetrics();
 
 int main(int argc, char** argv){
 
-    // if(argc < 3){
-    //     cerr << "Usage: <test image path> <object_detection_dataset path>\n";
-    //     return -1;
+    if(argc < 3){
+        cerr << "Usage: <test image path> <object_detection_dataset path>\n";
+        return -1;
 
-    // }
-    // const string WINDOWNAME = "Test image";
-    // string imgPath     = argv[1];
-    // string datasetPath = argv[2];
-    // const string drillModelsPath   = datasetPath + "035_" + Shared::toString(Shared::ImgObjType::power_drill)    + "/models/*.png";
-    // const string sugarModelsPath   = datasetPath + "004_" + Shared::toString(Shared::ImgObjType::sugar_box)      + "/models/*.png";
-    // const string mustardModelsPath = datasetPath + "006_" + Shared::toString(Shared::ImgObjType::mustard_bottle) + "/models/*.png";
+    }
+    const string WINDOWNAME = "Test image";
+    string imgPath     = argv[1];
+    string datasetPath = argv[2];
+    const string drillModelsPath   = datasetPath + "035_" + Shared::toString(Shared::ImgObjType::power_drill)    + "/models/*_color.png";
+    const string sugarModelsPath   = datasetPath + "004_" + Shared::toString(Shared::ImgObjType::sugar_box)      + "/models/*_color.png";
+    const string mustardModelsPath = datasetPath + "006_" + Shared::toString(Shared::ImgObjType::mustard_bottle) + "/models/*_color.png";
 
-    // string labelPath = imgPath;
-    // labelPath = labelPath.replace(labelPath.find("test_images"), 11, "labels");
-    // labelPath.replace(labelPath.find("-color.jpg"), 10, "-box.txt");
+    string labelPath = imgPath;
+    labelPath = labelPath.replace(labelPath.find("test_images"), 11, "labels");
+    labelPath.replace(labelPath.find("-color.jpg"), 10, "-box.txt");
 
-    // Mat testImg = imread(imgPath);
-    // if(testImg.empty() == 1){
-    //     cerr << "No image given as parameter\n";
-    //     return -1;
-    // }
-    // namedWindow(WINDOWNAME);
-    // imshow(WINDOWNAME, testImg);
-    
-    // vector<Mat> drillModels   = getModels(drillModelsPath);
-    // vector<Mat> sugarModels   = getModels(sugarModelsPath);
-    // vector<Mat> mustardModels = getModels(mustardModelsPath);
+    Mat testImg = imread(imgPath);
+    if(testImg.empty() == 1){
+        cerr << "No image given as parameter\n";
+        return -1;
+    }
+    namedWindow(WINDOWNAME);
+    imshow(WINDOWNAME, testImg);
 
-    // vector<string> labels;
-    // string line;
-    // ifstream labelFile;
-    // labelFile.open(labelPath);
-    // if(labelFile.is_open()){
-    //     getline(labelFile, line);
-    //     labels.push_back(line);
-    // }
-    // else{
-    //     cerr << "No label file found";
-    //     return -1;
-    // }
+    vector<Mat> drillModels   = getModels(drillModelsPath);
+    vector<Mat> sugarModels   = getModels(sugarModelsPath);
+    vector<Mat> mustardModels = getModels(mustardModelsPath);
+    vector<string> labels;
+    if(getLabels(&labels, labelPath) == -1){
+        cerr << "No label file found";
+        return -1;
+    }
 
-    // pcaSift(&testImg, drillModels);
+    Mat testImgKpts = pcaSift(&testImg);
+    imwrite("../output/keypoints.png", testImgKpts);
+    cout << "Loading drill models keypoints.." << endl;
+    vector<Mat> drillKpts   = getModelsKeypoints(drillModels);
+    cout << "Loading sugar models keypoints.." << endl;
+    vector<Mat> sugarKpts   = getModelsKeypoints(sugarModels);
+    cout << "Loading mustard models keypoints.." << endl;
+    vector<Mat> mustardKpts = getModelsKeypoints(mustardModels);
+    imwrite("../output/testKpts.png", drillKpts.at(1));
 
     //Test metrics
     testMetrics();
@@ -90,12 +90,11 @@ void testMetrics(){
 }
 
 vector<Mat> getModels(String pattern){
-    const int MODELSCOUNT = 59;
     vector<Mat> models;
     vector<cv::String> modelsFilenames;
     glob(pattern, modelsFilenames, false);
-    for(int i = 0; i < MODELSCOUNT; i++){ // TODO: maybe change this to read all images in the directory without a count limit
-        models.push_back(imread(modelsFilenames[i]));
+    for(string modelFilename : modelsFilenames){
+        models.push_back(imread(modelFilename));
     }
     return models;
 }

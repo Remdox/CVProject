@@ -8,7 +8,9 @@
 #include <vector>
 #include <fstream>
 
+int getLabels(std::vector<std::string> *labels, std::string labelPath);
 void getForegroundMask();
-cv::Mat pcaSift(cv::Mat* img, std::vector<cv::Mat> models);
+std::vector<cv::Mat> getModelsKeypoints(std::vector<cv::Mat> models);
+cv::Mat pcaSift(cv::Mat* img);
 
 #endif

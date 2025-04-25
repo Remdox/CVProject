@@ -5,6 +5,9 @@ build/CMakeCache.txt
 build/cmake_install.cmake
 build/compile_commands.json
 build/libmarco_annunziata.a
+build/libhermann_serain.a
+build/sveva_turola.a
+build/libshared.a
 build/Makefile
 .cache/
 output/*
