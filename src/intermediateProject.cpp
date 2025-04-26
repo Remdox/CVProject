@@ -20,7 +20,6 @@ using namespace Shared;
 // something different from what we've seen the lectures
 
 vector<modelView> getModelViews(string pattern);
-void testMetrics();
 
 int main(int argc, char** argv){
 
@@ -86,30 +85,20 @@ int main(int argc, char** argv){
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     std::cout << "Overall time for feature description: " << t << " seconds" << std::endl;
 
+    ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
+    
+
     Mat descriptors;
 
     //Test metrics
-    testMetrics();
+    //Dopo aver fatto il matching, passare qua i 2 punti della bounding box
+    //Rect rectFound = makeRect(/*xmin, ymin, xmax, ymax*/);
+    Rect rectFound = makeRect(420, 300, 550, 450);
+    ObjMetric metric = computeMetrics(imgPath, labelPath, objType, rectFound);
+    metric.toString();
 
     waitKey(0);
     return(0);
-}
-
-void testMetrics(){
-    string testImgPath = "./../data/object_detection_dataset/004_sugar_box/test_images/4_0001_000121-color.jpg";
-    int xmin = 397, ymin = 235, xmax = 469, ymax = 460; //4_0001_000121-box.txt
-    //int xmintest = 397, ymintest = 235, xmaxtest = 469, ymaxtest = 460; //100%
-    //int xmintest = 397, ymintest = 235, xmaxtest = 469, ymaxtest = 400; //>50%
-    // int xmintest = 397, ymintest = 235, xmaxtest = 469, ymaxtest = 347; //50%
-    //int xmintest = 397, ymintest = 235, xmaxtest = 469, ymaxtest = 300; //<50%
-    //int xmintest = 480, ymintest = 300, xmaxtest = 550, ymaxtest = 450; //0%
-    //Random points di chatgpt
-    int xmintest = 420, ymintest = 300, xmaxtest = 550, ymaxtest = 500;  
-    Rect realRect = makeRect(xmin, ymin, xmax, ymax);
-    Rect testRect = makeRect(xmintest, ymintest, xmaxtest, ymaxtest);
-
-    ObjMetric result = computeMetrics(testImgPath, ImgObjType::sugar_box, realRect, testRect);
-    cout << result.toString() << endl;
 }
 
 vector<modelView> getModelViews(string pattern){

@@ -31,7 +31,8 @@ namespace HermannLib{
     };
 
     Rect makeRect(int xmin, int ymin, int xmax, int ymax);
-    ObjMetric computeMetrics(string sourceImg, ImgObjType object, const Rect& a, const Rect& b);
+    ObjMetric computeMetrics(string sourceImgPath, string labelPath, ImgObjType object, const Rect& a);
+    void testMetrics();
 }
 
 #endif
