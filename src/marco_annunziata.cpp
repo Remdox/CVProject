@@ -1,6 +1,7 @@
 
 #include "marco_annunziata.hpp"
 #include "shared.hpp"
+#include <opencv2/core/types.hpp>
 #include <opencv2/features2d.hpp>
 
 using namespace std;
@@ -18,13 +19,13 @@ int getLabels(vector<string>* labels, string labelPath){
     return 0;
 }
 
-void setViewsKeypoints(objModel& model){
+void setViewsKeypoints(ObjModel& model){
     for(modelView& view : model.views){
         view.keypoints = SIFT_PCA::detectKeypoints(view.image);
     }
 }
 
-void setViewsDescriptors(objModel& model){
+void setViewsDescriptors(ObjModel& model){
     for(modelView& view : model.views){
         view.descriptors = SIFT_PCA::computeDescriptors(view.image, view.keypoints);
     }
@@ -44,6 +45,8 @@ Ptr<SIFT> SIFT_PCA::sift = SIFT::create(0, 3, 0.04, 10, 1.6, false);
 vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img){
     Mat grayImg;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
+    Mat mask = grayImg.clone(); // TODO: remove background from detection
+
     vector<KeyPoint> keypoints;
     sift->detect(grayImg, keypoints);
     return keypoints;
@@ -55,9 +58,7 @@ Mat SIFT_PCA::computeDescriptors(Mat& img, vector<KeyPoint> keypoints){
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
     Mat descriptors;
     // TODO (WIP): sub with the real PCA-SIFT Algorithm described in the paper
-    // Also, a version of compute for batch of images is available
     sift->compute(grayImg, keypoints, descriptors);
     return descriptors;
 }
-
 

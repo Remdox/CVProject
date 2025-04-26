@@ -16,7 +16,7 @@ struct modelView{
     cv::Mat descriptors;
 };
 
-struct objModel{
+struct ObjModel{
     std::vector<modelView> views;
     Shared::ImgObjType type;
 };
@@ -32,7 +32,7 @@ class SIFT_PCA{
 
 int getLabels(std::vector<std::string>* labels, std::string labelPath);
 void getForegroundMask();
-void setViewsKeypoints(objModel& model);
-void setViewsDescriptors(objModel& model);
+void setViewsKeypoints(ObjModel& model);
+void setViewsDescriptors(ObjModel& model);
 
 #endif
