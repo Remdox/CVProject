@@ -29,7 +29,12 @@ target_include_directories(hermann_serain PUBLIC
 target_link_libraries(hermann_serain PUBLIC ${OpenCV_LIBS})
 
 #3RD LIB
-
+add_library(sveva_turola src/sveva_turola.cpp)
+target_include_directories(sveva_turola PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(sveva_turola PUBLIC ${OpenCV_LIBS})
 
 # EXE
 
@@ -37,6 +42,7 @@ add_executable(intermediateProject src/intermediateProject.cpp)
 target_link_libraries(intermediateProject
     marco_annunziata
     hermann_serain
+    sveva_turola
     shared #Lasciare shared per ultimo
     ${OpenCV_LIBS}
 )

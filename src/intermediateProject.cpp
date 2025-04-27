@@ -15,6 +15,7 @@
 #include "../include/shared.hpp"
 #include "../include/marco_annunziata.hpp"
 #include "../include/hermann_serain.hpp"
+#include "../include/sveva_turola.hpp"
 
 using namespace std;
 using namespace cv;
@@ -98,17 +99,28 @@ int main(int argc, char** argv){
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     std::cout << "Overall time for feature description: " << t << " seconds" << std::endl;
 
-    ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
+    vector<Point> mustardPoints = featureMatching(&testImg, mustardModel);
+    vector<Point> drillPoints = featureMatching(&testImg, drillModel);
+    vector<Point> sugarPoints = featureMatching(&testImg, sugarModel);
+
+    Point mustardTl = mustardPoints[0];
+    Point mustardBr = mustardPoints[1];
+    Point drillTl = drillPoints[0];
+    Point drillBr = drillPoints[1];
+    Point sugarTl = sugarPoints[0];
+    Point sugarBr = sugarPoints[1];
+
+    //ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
     
 
-    Mat descriptors;
+    //Mat descriptors;
 
     //Test metrics
     //Dopo aver fatto il matching, passare qua i 2 punti della bounding box
     //Rect rectFound = makeRect(/*xmin, ymin, xmax, ymax*/);
-    Rect rectFound = makeRect(420, 300, 550, 450);
-    ObjMetric metric = computeMetrics(imgPath, labelPath, objType, rectFound);
-    metric.toString();
+    //Rect rectFound = makeRect(420, 300, 550, 450);
+    //ObjMetric metric = computeMetrics(imgPath, labelPath, objType, rectFound);
+    //metric.toString();
 
     waitKey(0);
     return(0);
