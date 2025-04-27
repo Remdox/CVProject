@@ -27,6 +27,8 @@ class SIFT_PCA{
 
     public:
         static std::vector<cv::KeyPoint> detectKeypoints(cv::Mat& img);
+        static std::vector<cv::KeyPoint> detectKeypoints_grabCut(cv::Mat& img);
+        static std::vector<cv::KeyPoint> detectKeypoints_canny(cv::Mat& img);
         static cv::Mat computeDescriptors(cv::Mat& img, std::vector<cv::KeyPoint> keypoints);
 };
 

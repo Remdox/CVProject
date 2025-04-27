@@ -72,9 +72,15 @@ int main(int argc, char** argv){
     setViewsKeypoints(sugarModel);
     cout << "Loading mustard models descriptors.." << endl;
     setViewsKeypoints(mustardModel);
-    outputImg = sugarModel.views.at(14).image.clone();
-    drawKeypoints(sugarModel.views.at(14).image, sugarModel.views.at(14).keypoints, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    imwrite("../output/modelKpts.png", outputImg);
+    int ind = 0;
+    for(modelView view : sugarModel.views){
+        outputImg = view.image.clone();
+        drawKeypoints(view.image,
+                  view.keypoints, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string file = "../output/view_" + to_string(ind) + ".png";
+        imwrite(file, outputImg);
+        ind++;
+    }
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     std::cout << "Overall time for feature detection: " << t << " seconds" << std::endl;
 
