@@ -12,6 +12,7 @@ namespace Shared{
     };
 
     std::string toString(ImgObjType type);
+    std::string getFolderNameData(ImgObjType type);
 }
 
 #endif

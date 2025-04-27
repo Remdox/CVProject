@@ -25,6 +25,11 @@ namespace HermannLib{
         public:
             ObjMetric(ImgObjType t, double iou, string sImg);
 
+             // getters inline
+            ImgObjType getType() const { return _type; }
+            double getIoU() const { return _IoU; }
+            const std::string& getSourceImg() const { return _sourceImg; }
+
         bool isDetected() const;
         string toString() const;
 
