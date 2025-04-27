@@ -106,6 +106,8 @@ namespace HermannLib{
                             + std::to_string(i));
                     }
                 }
+
+                result.push_back(coords);
             }
         }
     
