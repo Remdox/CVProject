@@ -108,8 +108,8 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
     }
 
-    imshow("Matches and Bounding Box", imageMatches);
-    waitKey(0);
+    //imshow("Matches and Bounding Box", imageMatches);
+    // waitKey(0);
     imwrite("../output/output.jpg", imageMatches);
 
     vector<Point> points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};

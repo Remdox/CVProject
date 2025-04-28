@@ -52,8 +52,8 @@ int main(int argc, char** argv){
         cerr << "No image given as parameter\n";
         return -1;
     }
-    namedWindow(WINDOWNAME);
-    imshow(WINDOWNAME, testImg);
+    // namedWindow(WINDOWNAME);
+    // imshow(WINDOWNAME, testImg);
 
     ObjModel drillModel;
     ObjModel sugarModel;
@@ -128,7 +128,7 @@ int main(int argc, char** argv){
     //ObjMetric metric = computeMetrics(imgPath, labelPath, objType, rectFound);
     //metric.toString();
 
-    waitKey(0);
+    // waitKey(0);
     return(0);
 }
 
