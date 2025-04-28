@@ -30,7 +30,7 @@ int alternativeMain();
 
 int main(int argc, char** argv){
     //Usato per fare il batch
-    return alternativeMain();
+    //return alternativeMain();
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
