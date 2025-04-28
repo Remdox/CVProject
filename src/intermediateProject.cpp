@@ -189,7 +189,7 @@ int alternativeMain(){
         fs::path dataFolder   = fs::path(inputRootFolder) / getFolderNameData(type);
         fs::path testImagesDir = dataFolder / "test_images";
         fs::path labelsDir     = dataFolder / "labels";
-        fs::path modelsDir     = dataFolder / "models";
+        fs::path modelsDir     = dataFolder / "models" / "*_color.png";
 
         if (!fs::is_directory(testImagesDir) || !fs::is_directory(labelsDir)) {
             throw std::runtime_error("Directory test_images o labels mancante per " 
@@ -200,7 +200,7 @@ int alternativeMain(){
         const std::string suffixLabel = "box.txt";
         ObjModel objModel;
         objModel.type = type;
-        getModelViews(modelsDir, objModel);
+        getModelViews(modelsDir.string(), objModel);
 
         // 2b) ciclo sulle immagini di test
         for (auto const& testEntry : fs::directory_iterator(testImagesDir)) {
@@ -235,6 +235,8 @@ int alternativeMain(){
             ObjMetric metric = computeMetrics(
                 testImgPath, labelPath.string(), type, foundRect
             );
+
+            cout << metric.toString() << endl;
 
             // raccolta metriche
             metricsList.push_back(metric);
