@@ -21,7 +21,7 @@ using namespace std;
 using namespace cv;
 using namespace HermannLib;
 using namespace Shared;
-//namespace fs = std::filesystem;
+namespace fs = std::filesystem;
 
 // we can use everything in OpenCV except Deep Learning, we can use ML and can explore
 // something different from what we've seen the lectures
@@ -29,15 +29,17 @@ using namespace Shared;
 int alternativeMain();
 
 int main(int argc, char** argv){
-    // return alternativeMain();
-    if(argc < 3){
-        cerr << "Usage: <test image path> <object_detection_dataset path>\n";
-        return -1;
+    return alternativeMain();
+    // if(argc < 3){
+    //     cerr << "Usage: <test image path> <object_detection_dataset path>\n";
+    //     return -1;
 
-    }
+    // }
     const string WINDOWNAME = "Test image";
-    string imgPath     = argv[1];
-    string datasetPath = argv[2];
+    // string imgPath     = argv[1];
+    // string datasetPath = argv[2];
+    string imgPath     = "../data/object_detection_dataset/006_mustard_bottle/test_images/6_0001_000952-color.jpg";
+    string datasetPath = "../data/object_detection_dataset/";
     const string drillViewsPath   = datasetPath + "035_" + toString(ImgObjType::power_drill)    + "/models/*_color.png";
     const string sugarViewsPath   = datasetPath + "004_" + toString(ImgObjType::sugar_box)      + "/models/*_color.png";
     const string mustardViewsPath = datasetPath + "006_" + toString(ImgObjType::mustard_bottle) + "/models/*_color.png";
@@ -109,12 +111,29 @@ int main(int argc, char** argv){
     vector<Point> drillPoints = featureMatching(&testImg, drillModel);
     vector<Point> sugarPoints = featureMatching(&testImg, sugarModel);
 
-    /*Point mustardTl = mustardPoints[0];
-    Point mustardBr = mustardPoints[1];
-    Point drillTl = drillPoints[0];
-    Point drillBr = drillPoints[1];
-    Point sugarTl = sugarPoints[0];
-    Point sugarBr = sugarPoints[1];*/
+    // ... (dove hai già popolato sugarPoints, mustardPoints e drillPoints)
+    Point sugarTl    = sugarPoints[0];
+    Point sugarBr    = sugarPoints[1];
+    Point mustardTl  = mustardPoints[0];
+    Point mustardBr  = mustardPoints[1];
+    Point drillTl    = drillPoints[0];
+    Point drillBr    = drillPoints[1];
+
+    // Costruisci i Rect
+    Rect rectSugar   = makeRect(sugarTl.x,    sugarTl.y,    sugarBr.x,    sugarBr.y);
+    Rect rectMustard = makeRect(mustardTl.x,  mustardTl.y,  mustardBr.x,  mustardBr.y);
+    Rect rectDrill   = makeRect(drillTl.x,    drillTl.y,    drillBr.x,    drillBr.y);
+
+    // Calcola le 3 metriche
+    ObjMetric metricSugar   = computeMetrics(imgPath, labelPath, ImgObjType::sugar_box,       rectSugar);
+    ObjMetric metricMustard = computeMetrics(imgPath, labelPath, ImgObjType::mustard_bottle, rectMustard);
+    ObjMetric metricDrill   = computeMetrics(imgPath, labelPath, ImgObjType::power_drill,    rectDrill);
+
+    // Stampa a video
+    std::cout << "Sugar box metric: "    << metricSugar.toString()   << std::endl;
+    std::cout << "Mustard bottle metric: "<< metricMustard.toString() << std::endl;
+    std::cout << "Power drill metric: "   << metricDrill.toString()   << std::endl;
+
 
     //ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
     
@@ -132,7 +151,7 @@ int main(int argc, char** argv){
     return(0);
 }
 
-/*
+
 int alternativeMain(){
     const int length = 3;
     std::array<ImgObjType, length> objTypes{
@@ -164,9 +183,13 @@ int alternativeMain(){
         double sumIoU = 0.0;
 
         // percorsi dati
+        
+
+
         fs::path dataFolder   = fs::path(inputRootFolder) / getFolderNameData(type);
         fs::path testImagesDir = dataFolder / "test_images";
         fs::path labelsDir     = dataFolder / "labels";
+        fs::path modelsDir     = dataFolder / "models";
 
         if (!fs::is_directory(testImagesDir) || !fs::is_directory(labelsDir)) {
             throw std::runtime_error("Directory test_images o labels mancante per " 
@@ -175,6 +198,9 @@ int alternativeMain(){
 
         const std::string suffixImg   = "color.jpg";
         const std::string suffixLabel = "box.txt";
+        ObjModel objModel;
+        objModel.type = type;
+        getModelViews(modelsDir, objModel);
 
         // 2b) ciclo sulle immagini di test
         for (auto const& testEntry : fs::directory_iterator(testImagesDir)) {
@@ -196,14 +222,14 @@ int alternativeMain(){
                 throw std::runtime_error("Label file mancante: " + labelPath.string());
             }
 
-            // Detection
+            // Detection and Matching
             std::string testImgPath = testEntry.path().string();
-            cv::Mat testImgData     = cv::imread(testImgPath);
-            auto keypoints          = SIFTDetector::detectKeypoints(testImgData);
+            cv::Mat testImgData = cv::imread(testImgPath);
+            vector<Point> points = featureMatching(&testImgData, objModel);
 
-            // Matching …
+            int xmintest = points[0].x, ymintest = points[0].y, xmaxtest = points[1].x, ymaxtest = points[1].y;
+
             // Metricas (finto rect)
-            int xmintest = 420, ymintest = 300, xmaxtest = 550, ymaxtest = 500;
             cv::Rect foundRect = makeRect(xmintest, ymintest, xmaxtest, ymaxtest);
 
             ObjMetric metric = computeMetrics(
@@ -244,4 +270,4 @@ int alternativeMain(){
 
     return 0;
 }
-*/
+
