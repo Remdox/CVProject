@@ -70,7 +70,6 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
     }
 
-    cout << bestMatches.size() << "!!!!!\n";
     Mat imageMatches;
     vector<char> mask_char(maskInliers.begin(), maskInliers.end());
     drawMatches(models.views[modelIndex].image, models.views[modelIndex].keypoints, image, imageKeypoints, bestMatches, imageMatches, Scalar::all(-1),
@@ -107,10 +106,10 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
     for (int i = 0; i < 4; i++) {
         line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
     }
-    
-    imshow("Matches", imageMatches);
+
+    imshow("Matches and Bounding Box", imageMatches);
     waitKey(0);
 
-    vector<Point> points = {topLeft + modelOffset, bottomRight + modelOffset};
+    vector<Point> points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};
     return points;
 }
