@@ -62,56 +62,54 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         }
 
         homography = findHomography(objectPoints, scenePoints, RANSAC, 10.0, maskInliers);
-        if (homography.empty()) {
-            cout << "Homography is empty!\n";
-            return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
-        }
     } else {
         cout << "Not enough matches found: " << bestMatches.size() << "\n";
-        return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
+        return {Point(0, 0), Point(0, 0)};
     }
 
+    vector<Point> points;
     Mat imageMatches;
-    vector<char> mask_char(maskInliers.begin(), maskInliers.end());
-    drawMatches(models.views[modelIndex].image, models.views[modelIndex].keypoints, image, imageKeypoints, bestMatches, imageMatches, Scalar::all(-1),
-    Scalar::all(-1), mask_char, DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+    if (homography.empty()) {
+        cout << "Homography is empty!\n";
+        drawMatches(models.views[modelIndex].image, models.views[modelIndex].keypoints, image, imageKeypoints, bestMatches, imageMatches, Scalar::all(-1),
+        Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+        points = {Point(0, 0), Point(0, 0)};
+    } else {
+        vector<char> mask_char(maskInliers.begin(), maskInliers.end());
+        drawMatches(models.views[modelIndex].image, models.views[modelIndex].keypoints, image, imageKeypoints, bestMatches, imageMatches, Scalar::all(-1),
+        Scalar::all(-1), mask_char, DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-    // draw bounding box based on keypoints of the best model
-    vector<KeyPoint> keypoints = models.views[modelIndex].keypoints;
+        // draw bounding box based on keypoints of the best model
+        vector<KeyPoint> keypoints = models.views[modelIndex].keypoints;
 
-    Point2f topLeft = keypoints[0].pt;
-    Point2f bottomRight = keypoints[0].pt;
-    for (size_t i = 1; i < keypoints.size(); i++) {
-        const Point2f& pt = keypoints[i].pt;
-        if (pt.x < topLeft.x) topLeft.x = pt.x;
-        if (pt.y < topLeft.y) topLeft.y = pt.y;
-        if (pt.x > bottomRight.x) bottomRight.x = pt.x;
-        if (pt.y > bottomRight.y) bottomRight.y = pt.y;
-    }
+        Point2f topLeft = keypoints[0].pt;
+        Point2f bottomRight = keypoints[0].pt;
+        for (size_t i = 1; i < keypoints.size(); i++) {
+            const Point2f& pt = keypoints[i].pt;
+            if (pt.x < topLeft.x) topLeft.x = pt.x;
+            if (pt.y < topLeft.y) topLeft.y = pt.y;
+            if (pt.x > bottomRight.x) bottomRight.x = pt.x;
+            if (pt.y > bottomRight.y) bottomRight.y = pt.y;
+        }
 
-    vector<Point2f> modelCorners = {
-        topLeft,
-        Point2f(bottomRight.x, topLeft.y),
-        bottomRight,
-        Point2f(topLeft.x, bottomRight.y)
-    };
+        vector<Point2f> modelCorners = {topLeft, Point2f(bottomRight.x, topLeft.y), bottomRight, Point2f(topLeft.x, bottomRight.y)};
+        vector<Point2f> sceneCorners;
+        perspectiveTransform(modelCorners, sceneCorners, homography);
 
-    vector<Point2f> sceneCorners;
-    perspectiveTransform(modelCorners, sceneCorners, homography);
+        Size modelSize = models.views[modelIndex].image.size();
+        int modelWidth = modelSize.width;
 
-    Size modelSize = models.views[modelIndex].image.size();
-    int modelWidth = modelSize.width;
+        Point2f modelOffset(modelWidth, 0);
 
-    Point2f modelOffset(modelWidth, 0);
-
-    for (int i = 0; i < 4; i++) {
-        line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
+        for (int i = 0; i < 4; i++) {
+            line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
+        }
+        points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};
     }
 
     //imshow("Matches and Bounding Box", imageMatches);
-    // waitKey(0);
+    //waitKey(0);
     imwrite("../output/output.jpg", imageMatches);
 
-    vector<Point> points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};
     return points;
 }
