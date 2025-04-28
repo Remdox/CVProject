@@ -74,7 +74,7 @@ int main(int argc, char** argv){
     /*Mat imggtest = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_color.png");
     //vector<KeyPoint> testImgKpts = SIFT_PfiCA::detectKeypoints(testImg);
     Mat test = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_mask.png");*/
-    vector<KeyPoint> testImgKpts = SIFT_PCA::detectKeypoints(testImg);
+    vector<KeyPoint> testImgKpts = SIFTDetector::detectKeypoints(testImg);
     Mat outputImg = testImg.clone();
     drawKeypoints(testImg, testImgKpts, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
     imwrite("../output/keypoints.png", outputImg);
@@ -91,7 +91,7 @@ int main(int argc, char** argv){
         outputImg = view.image.clone();
         drawKeypoints(view.image,
                   view.keypoints, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        string file = "../output/view_" + to_string(ind) +  + ".png";
+        string file = "../output/views/view_" + to_string(ind) +  + ".png";
         imwrite(file, outputImg);
         ind++;
     }
@@ -199,7 +199,7 @@ int alternativeMain(){
             // Detection
             std::string testImgPath = testEntry.path().string();
             cv::Mat testImgData     = cv::imread(testImgPath);
-            auto keypoints          = SIFT_PCA::detectKeypoints(testImgData);
+            auto keypoints          = SIFTDetector::detectKeypoints(testImgData);
 
             // Matching …
             // Metricas (finto rect)

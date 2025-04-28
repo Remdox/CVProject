@@ -22,7 +22,7 @@ struct ObjModel{
     Shared::ImgObjType type;
 };
 
-class SIFT_PCA{
+class SIFTDetector{
     private:
         static cv::Ptr<cv::SIFT> sift;
 
