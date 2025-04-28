@@ -34,6 +34,9 @@ class SIFT_PCA{
 };
 
 void getModelViews(std::string imgPattern, ObjModel& model);
+cv::Mat meanShiftSegmentation(cv::Mat &src);
+double computeOverlap(const cv::Mat& mask1, const cv::Mat& mask2);
+cv::Mat segmentImgBackground(cv::Mat &src);
 int getLabels(std::vector<std::string>* labels, std::string labelPath);
 void setViewsKeypoints(ObjModel& model);
 void setViewsDescriptors(ObjModel& model);
