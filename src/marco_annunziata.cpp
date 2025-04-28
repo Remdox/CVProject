@@ -3,9 +3,26 @@
 #include "shared.hpp"
 #include <opencv2/core/types.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/highgui.hpp>
 
 using namespace std;
 using namespace cv;
+
+void getModelViews(string imgPattern, ObjModel& model){
+    vector<string> viewsFilenames;
+    glob(imgPattern, viewsFilenames, false);
+    for(string modelFilename : viewsFilenames){
+        modelView view;
+        view.image = imread(modelFilename);
+        string maskFilename = modelFilename.replace(modelFilename.find("color"), 5, "mask");
+        view.mask = imread(maskFilename);
+        if(view.image.empty()){
+            cerr << "No image " << modelFilename << " found" << endl;
+            continue;
+        }
+        model.views.push_back(view);
+    }
+}
 
 int getLabels(vector<string>* labels, string labelPath){
     string line;
@@ -21,7 +38,7 @@ int getLabels(vector<string>* labels, string labelPath){
 
 void setViewsKeypoints(ObjModel& model){
     for(modelView& view : model.views){
-        view.keypoints = SIFT_PCA::detectKeypoints(view.image);
+        view.keypoints = SIFT_PCA::detectKeypoints(view.image, view.mask);
     }
 }
 
@@ -31,9 +48,6 @@ void setViewsDescriptors(ObjModel& model){
     }
 }
 
-void getForegroundMask(){
-
-}
 
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@ SIFT_PCA Class @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -62,29 +76,23 @@ vector<KeyPoint> SIFT_PCA::detectKeypoints_canny(Mat& img) {
 vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img){
     Mat grayImg;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
-    Mat mask = grayImg.clone(); // TODO: remove background from detection
 
     vector<KeyPoint> keypoints;
     sift->detect(grayImg, keypoints);
     return keypoints;
 }
 
-vector<KeyPoint> SIFT_PCA::detectKeypoints_grabCut(Mat& img){
+vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img, Mat& mask) {
     Mat grayImg;
-    Mat mask(img.size(), CV_8UC1, GC_BGD); // TODO: remove background from detection
-    Mat bgdModel, fgdModel;
-    Rect RegionOfInterest(img.cols * 0.1, img.rows * 0.1, img.cols * 0.8, img.rows * 0.8);
-    rectangle(mask, RegionOfInterest, Scalar(GC_PR_FGD), -1);
-
-    grabCut(img, mask, RegionOfInterest, bgdModel, fgdModel, 5, GC_INIT_WITH_RECT);
-
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
 
-    Mat foreground;
-    grayImg.copyTo(foreground, (mask == GC_FGD) | (mask == GC_PR_FGD));
+    Mat grayMask;
+    cvtColor(mask, grayMask, COLOR_BGR2GRAY);
+    threshold(grayMask, grayMask, 1, 255, THRESH_BINARY); // Forza valori binari
 
     vector<KeyPoint> keypoints;
-    sift->detect(foreground, keypoints);
+    sift->detect(grayImg, keypoints, grayMask);
+
     return keypoints;
 }
 

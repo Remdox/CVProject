@@ -21,16 +21,15 @@ using namespace std;
 using namespace cv;
 using namespace HermannLib;
 using namespace Shared;
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
 // we can use everything in OpenCV except Deep Learning, we can use ML and can explore
 // something different from what we've seen the lectures
 
-vector<modelView> getModelViews(string pattern);
 int alternativeMain();
 
 int main(int argc, char** argv){
-    return alternativeMain();
+    // return alternativeMain();
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
@@ -47,6 +46,7 @@ int main(int argc, char** argv){
     labelPath = labelPath.replace(labelPath.find("test_images"), 11, "labels");
     labelPath.replace(labelPath.find("-color.jpg"), 10, "-box.txt");
 
+    //Mat testImg = imread("../data/object_detection_dataset/006_mustard_bottle/test_images/6_0001_000121-color_2.jpg");
     Mat testImg = imread(imgPath);
     if(testImg.empty() == 1){
         cerr << "No image given as parameter\n";
@@ -58,9 +58,12 @@ int main(int argc, char** argv){
     ObjModel drillModel;
     ObjModel sugarModel;
     ObjModel mustardModel;
-    drillModel.views   = getModelViews(drillViewsPath);
-    sugarModel.views   = getModelViews(sugarViewsPath);
-    mustardModel.views = getModelViews(mustardViewsPath);
+    drillModel.type = ImgObjType::power_drill;
+    sugarModel.type = ImgObjType::sugar_box;
+    mustardModel.type = ImgObjType::mustard_bottle;
+    getModelViews(drillViewsPath, drillModel);
+    getModelViews(sugarViewsPath, sugarModel);
+    getModelViews(mustardViewsPath, mustardModel);
 
     vector<string> labels;
     if(getLabels(&labels, labelPath) == -1){
@@ -68,6 +71,9 @@ int main(int argc, char** argv){
         return -1;
     }
 
+    /*Mat imggtest = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_color.png");
+    //vector<KeyPoint> testImgKpts = SIFT_PfiCA::detectKeypoints(testImg);
+    Mat test = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_mask.png");*/
     vector<KeyPoint> testImgKpts = SIFT_PCA::detectKeypoints(testImg);
     Mat outputImg = testImg.clone();
     drawKeypoints(testImg, testImgKpts, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -81,11 +87,11 @@ int main(int argc, char** argv){
     cout << "Loading mustard models descriptors.." << endl;
     setViewsKeypoints(mustardModel);
     int ind = 0;
-    for(modelView view : sugarModel.views){
+    for(modelView view : mustardModel.views){
         outputImg = view.image.clone();
         drawKeypoints(view.image,
                   view.keypoints, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        string file = "../output/view_" + to_string(ind) + ".png";
+        string file = "../output/view_" + to_string(ind) +  + ".png";
         imwrite(file, outputImg);
         ind++;
     }
@@ -103,12 +109,12 @@ int main(int argc, char** argv){
     vector<Point> drillPoints = featureMatching(&testImg, drillModel);
     vector<Point> sugarPoints = featureMatching(&testImg, sugarModel);
 
-    Point mustardTl = mustardPoints[0];
+    /*Point mustardTl = mustardPoints[0];
     Point mustardBr = mustardPoints[1];
     Point drillTl = drillPoints[0];
     Point drillBr = drillPoints[1];
     Point sugarTl = sugarPoints[0];
-    Point sugarBr = sugarPoints[1];
+    Point sugarBr = sugarPoints[1];*/
 
     //ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
     
@@ -126,6 +132,7 @@ int main(int argc, char** argv){
     return(0);
 }
 
+/*
 int alternativeMain(){
     const int length = 3;
     std::array<ImgObjType, length> objTypes{
@@ -237,19 +244,4 @@ int alternativeMain(){
 
     return 0;
 }
-
-vector<modelView> getModelViews(string pattern){
-    vector<modelView> views;
-    vector<string> viewsFilenames;
-    glob(pattern, viewsFilenames, false);
-    for(string modelFilename : viewsFilenames){
-        modelView view;
-        view.image = imread(modelFilename);
-        if(view.image.empty()){
-            cerr << "No image" << modelFilename << "found" << endl;
-            continue;
-        }
-        views.push_back(view);
-    }
-    return views;
-}
+*/

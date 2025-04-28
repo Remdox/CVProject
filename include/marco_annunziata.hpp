@@ -12,6 +12,7 @@
 
 struct modelView{
     cv::Mat image;
+    cv::Mat mask;
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
 };
@@ -27,13 +28,13 @@ class SIFT_PCA{
 
     public:
         static std::vector<cv::KeyPoint> detectKeypoints(cv::Mat& img);
-        static std::vector<cv::KeyPoint> detectKeypoints_grabCut(cv::Mat& img);
+        static std::vector<cv::KeyPoint> detectKeypoints(cv::Mat& img, cv::Mat& mask);
         static std::vector<cv::KeyPoint> detectKeypoints_canny(cv::Mat& img);
         static cv::Mat computeDescriptors(cv::Mat& img, std::vector<cv::KeyPoint> keypoints);
 };
 
+void getModelViews(std::string imgPattern, ObjModel& model);
 int getLabels(std::vector<std::string>* labels, std::string labelPath);
-void getForegroundMask();
 void setViewsKeypoints(ObjModel& model);
 void setViewsDescriptors(ObjModel& model);
 
