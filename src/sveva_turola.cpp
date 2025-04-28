@@ -11,25 +11,29 @@
 using namespace std;
 using namespace cv;
 
-cv::RNG rng(12345);
-
 vector<Point> featureMatching(Mat* img, ObjModel& models){
     Mat image = img->clone();
+
+    // set keypoints and descriptors of test's image and model
     vector<KeyPoint> imageKeypoints = SIFT_PCA::detectKeypoints(image);
     Mat imageDescriptors = SIFT_PCA::computeDescriptors(image, imageKeypoints);
-    size_t bestNumberMatches = 0;
-    int modelIndex = -1;
-    vector<DMatch> bestMatch;
-    Ptr<DescriptorMatcher> matcher = BFMatcher::create(NORM_L2);
     setViewsKeypoints(models);
     setViewsDescriptors(models);
+
+    size_t bestNumberMatches = 0;
+    int modelIndex = -1;
+    vector<DMatch> bestMatches;
+
+    // creation of the brute force matcher
+    Ptr<DescriptorMatcher> matcher = BFMatcher::create(NORM_L2);
 
     for(size_t i = 0; i < models.views.size(); i++){
         modelView& view = models.views[i];
         vector<vector<DMatch>> matches;
-        matcher -> knnMatch(imageDescriptors, view.descriptors, matches, 2);
+        matcher -> knnMatch(view.descriptors, imageDescriptors, matches, 2);
 
-        const float ratioTresh = 0.7f;
+        // Lowe's ratio test
+        const float ratioTresh = 0.9f;
         vector<DMatch> goodMatches;
         for(size_t j = 0; j < matches.size(); j++){
             if(matches[j][0].distance < ratioTresh * matches[j][1].distance){
@@ -37,62 +41,76 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
             }
         }
 
+        // find the best model
         if(goodMatches.size() > bestNumberMatches){
             bestNumberMatches = goodMatches.size();
-            modelIndex = i;
-            bestMatch = goodMatches;
+            modelIndex = static_cast<int>(i);
+            bestMatches = goodMatches;
         }
     }
 
+    // find Homography
     vector<Point2f> objectPoints;
     vector<Point2f> scenePoints;
+    vector<uchar> maskInliers;
+    Mat homography;
 
-    for(size_t i = 0; i < bestMatch.size(); i++){
-        objectPoints.push_back(models.views[modelIndex].keypoints[bestMatch[i].trainIdx].pt);
-        scenePoints.push_back(imageKeypoints[bestMatch[i].queryIdx].pt);
-    }
-
-    Mat homography = findHomography(objectPoints, scenePoints, RANSAC);
-
-    Mat imageMatches;
-    drawMatches(image, imageKeypoints, models.views[modelIndex].image, models.views[modelIndex].keypoints, bestMatch, imageMatches, Scalar::all(-1),
-    Scalar::all(-1), std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    Mat canny;
-    Canny(image, canny, 100, 200);
-    
-    vector<vector<Point>> contours;
-    findContours(canny, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    vector<vector<Point> > contours_poly( contours.size() );
-    vector<Rect> boundRect( contours.size() );
-    vector<Point2f>centers( contours.size() );
-    vector<float>radius( contours.size() );
-    for( size_t i = 0; i < contours.size(); i++ )
-    {
-        approxPolyDP( contours[i], contours_poly[i], 3, true );
-        boundRect[i] = boundingRect( contours_poly[i] );
-    }
-    
-    int largestContourIdx = -1;
-    double maxArea = 0;
-
-    for (size_t i = 0; i < boundRect.size(); i++) {
-        double area = boundRect[i].width * boundRect[i].height;
-        if (area > maxArea) {
-            maxArea = area;
-            largestContourIdx = i;
+    if(bestMatches.size() >= 4){
+        for(size_t i = 0; i < bestMatches.size(); i++){
+            objectPoints.push_back(models.views[modelIndex].keypoints[bestMatches[i].queryIdx].pt);
+            scenePoints.push_back(imageKeypoints[bestMatches[i].trainIdx].pt);
         }
+
+        homography = findHomography(objectPoints, scenePoints, RANSAC, 10.0, maskInliers);
+        if (homography.empty()) {
+            cout << "Homography is empty!\n";
+        }
+    } else {
+        cout << "Not enough matches found: " << bestMatches.size() << "\n";
+        return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
     }
 
-    if (largestContourIdx != -1) {
-        Scalar color = Scalar(0, 255, 0);
-        rectangle(imageMatches, boundRect[largestContourIdx].tl(), boundRect[largestContourIdx].br(), color, 2);
+    cout << bestMatches.size() << "!!!!!\n";
+    Mat imageMatches;
+    vector<char> mask_char(maskInliers.begin(), maskInliers.end());
+    drawMatches(models.views[modelIndex].image, models.views[modelIndex].keypoints, image, imageKeypoints, bestMatches, imageMatches, Scalar::all(-1),
+    Scalar::all(-1), mask_char, DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+
+    // draw bounding box based on keypoints of the best model
+    vector<KeyPoint> keypoints = models.views[modelIndex].keypoints;
+
+    Point2f topLeft = keypoints[0].pt;
+    Point2f bottomRight = keypoints[0].pt;
+    for (size_t i = 1; i < keypoints.size(); i++) {
+        const Point2f& pt = keypoints[i].pt;
+        if (pt.x < topLeft.x) topLeft.x = pt.x;
+        if (pt.y < topLeft.y) topLeft.y = pt.y;
+        if (pt.x > bottomRight.x) bottomRight.x = pt.x;
+        if (pt.y > bottomRight.y) bottomRight.y = pt.y;
+    }
+
+    vector<Point2f> modelCorners = {
+        topLeft,
+        Point2f(bottomRight.x, topLeft.y),
+        bottomRight,
+        Point2f(topLeft.x, bottomRight.y)
+    };
+
+    vector<Point2f> sceneCorners;
+    perspectiveTransform(modelCorners, sceneCorners, homography);
+
+    Size modelSize = models.views[modelIndex].image.size();
+    int modelWidth = modelSize.width;
+
+    Point2f modelOffset(modelWidth, 0);
+
+    for (int i = 0; i < 4; i++) {
+        line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
     }
     
     imshow("Matches", imageMatches);
     waitKey(0);
 
-    vector<Point> points = {boundRect[largestContourIdx].tl(), boundRect[largestContourIdx].br()};
+    vector<Point> points = {topLeft + modelOffset, bottomRight + modelOffset};
     return points;
-
 }
