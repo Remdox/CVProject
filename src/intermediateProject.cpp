@@ -30,7 +30,7 @@ int alternativeMain();
 
 int main(int argc, char** argv){
     //Usato per fare il batch
-    //return alternativeMain();
+    return alternativeMain();
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
@@ -154,8 +154,7 @@ int main(int argc, char** argv){
 }
 
 int alternativeMain() {
-    const int length = 3;
-    std::array<ImgObjType, length> objTypes {
+    const std::array<ImgObjType,3> objTypes {
         ImgObjType::sugar_box,
         ImgObjType::mustard_bottle,
         ImgObjType::power_drill
@@ -164,84 +163,80 @@ int alternativeMain() {
     const std::string inputRootFolder  = "./../data/object_detection_dataset/";
     const std::string outputFolderPath = "./../output";
 
-    // Ripulisci e ricrea la cartella di output
+    // --- 1) Pulisci e ricrea output ---
     fs::path outputDir(outputFolderPath);
     if (fs::exists(outputDir)) fs::remove_all(outputDir);
     fs::create_directories(outputDir);
 
-    std::map<ImgObjType, std::pair<std::vector<ObjMetric>, double>> metricsDict;
+    // --- 2) CARICA TUTTI I MODELLI 1 sola volta ---
+    std::vector<ObjModel> models;
+    for (auto type : objTypes) {
+        ObjModel m;
+        m.type = type;
+        std::string globPath = (fs::path(inputRootFolder)
+                                / getFolderNameData(type)
+                                / "models"
+                                / "*_color.png").string();
+        getModelViews(globPath, m);
+        models.push_back(std::move(m));
+    }
 
-    // Ciclo sui tre tipi di oggetto
-    for (auto const& type : objTypes) {
+    // --- 3) Per ciascun tipo, processa la sua cartella di test_images ---
+    for (auto type : objTypes) {
+        // directory di test per questo tipo
+        fs::path testImagesDir = fs::path(inputRootFolder)
+                                 / getFolderNameData(type)
+                                 / "test_images";
+        if (!fs::is_directory(testImagesDir))
+            throw std::runtime_error("Manca test_images per " + toString(type));
+
+        // crea sottocartella di output/<type>
         fs::path outSubdir = outputDir / toString(type);
         fs::create_directories(outSubdir);
 
-        std::vector<ObjMetric> metricsList;
-        double sumIoU = 0.0;
-
-        // Percorsi di immagini, etichette e modelli
-        fs::path dataFolder    = fs::path(inputRootFolder) / getFolderNameData(type);
-        fs::path testImagesDir = dataFolder / "test_images";
-        fs::path labelsDir     = dataFolder / "labels";
-        fs::path modelsDir     = dataFolder / "models" / "*_color.png";
-
-        if (!fs::is_directory(testImagesDir) || !fs::is_directory(labelsDir))
-            throw std::runtime_error("Directory test_images o labels mancante per " + toString(type));
-
-        const std::string suffixImg   = "color.jpg";
-        const std::string suffixLabel = "box.txt";
-
-        ObjModel objModel;
-        objModel.type = type;
-        getModelViews(modelsDir.string(), objModel);
-
-        // Ciclo su ogni immagine di test
-        for (auto const& testEntry : fs::directory_iterator(testImagesDir)) {
-            if (!testEntry.is_regular_file()) continue;
-
-            std::string imgName = testEntry.path().filename().string();
-            if (imgName.size() <= suffixImg.size() ||
-                imgName.substr(imgName.size() - suffixImg.size()) != suffixImg)
+        // ciclo su ogni immagine di test
+        for (auto const& entry : fs::directory_iterator(testImagesDir)) {
+            if (!entry.is_regular_file()) continue;
+            std::string imgName = entry.path().filename().string();
+            if (imgName.size() <= 9 ||
+                imgName.substr(imgName.size() - 9) != "color.jpg")
                 continue;
 
-            fs::path labelPath = labelsDir /
-                (imgName.substr(0, imgName.size() - suffixImg.size()) + suffixLabel);
-            if (!fs::exists(labelPath))
-                throw std::runtime_error("Label file mancante: " + labelPath.string());
+            // leggi l’immagine
+            cv::Mat testImg = cv::imread(entry.path().string());
 
-            // Leggi l’immagine
-            std::string testImgPath = testEntry.path().string();
-            cv::Mat testImgData = cv::imread(testImgPath);
+            // prepara <base>data.txt
+            std::string base = imgName.substr(0, imgName.size() - 9);
+            fs::path dataFile = outSubdir / (base + "data.txt");
+            std::ofstream ofs(dataFile.string());
+            if (!ofs)
+                throw std::runtime_error("Impossibile aprire " + dataFile.string());
 
-            // Prepara i nomi dei file di output
-            std::string baseName = imgName.substr(0, imgName.size() - suffixImg.size());
-            fs::path dataFilePath = outSubdir / (baseName + "data.txt");
-            fs::path bbFilePath   = outSubdir / (baseName + "bb.jpg");
+            // fai matching con TUTTI i modelli (non const!)
+            for (auto& model : models) {
+                // path dove salvare il bounding‐box
+                std::string bbPath = (outSubdir
+                                      / (base + "_" + toString(model.type) + "_bb.jpg"))
+                                      .string();
 
-            // Matching, bounding‐box e salvataggio immagine
-            std::vector<Point> points = featureMatching(&testImgData, objModel, bbFilePath.string());
+                // CHIAMATA CORRETTA: featureMatching richiede ObjModel& mutabile
+                std::vector<cv::Point> pts =
+                    featureMatching(&testImg, model, bbPath);
 
-            int xmintest = points[0].x, ymintest = points[0].y;
-            int xmaxtest = points[1].x, ymaxtest = points[1].y;
+                int xmin = pts[0].x, ymin = pts[0].y;
+                int xmax = pts[1].x, ymax = pts[1].y;
 
-            Rect foundRect = makeRect(xmintest, ymintest, xmaxtest, ymaxtest);
-            ObjMetric metric = computeMetrics(testImgPath, labelPath.string(), type, foundRect);
-            std::cout << metric.toString() << std::endl;
+                // una riga per modello
+                ofs << toString(model.type)
+                    << " " << xmin
+                    << " " << ymin
+                    << " " << xmax
+                    << " " << ymax
+                    << "\n";
+            }
 
-            metricsList.push_back(metric);
-            sumIoU += metric.getIoU();
-
-            // Scrivi le coordinate su data.txt
-            std::ofstream ofs(dataFilePath);
-            if (!ofs) throw std::runtime_error("Impossibile aprire file: " + dataFilePath.string());
-            ofs << xmintest << " " << ymintest << " " << xmaxtest << " " << ymaxtest << "\n";
+            // ofs chiude automaticamente
         }
-
-        // Calcola la mean IoU per questo tipo
-        double meanIoU = metricsList.empty() ? 0.0 : sumIoU / metricsList.size();
-
-        cout << toString(type) <<  " mIoU: " << meanIoU << endl;
-        metricsDict[type] = std::make_pair(std::move(metricsList), meanIoU);
     }
 
     return 0;
