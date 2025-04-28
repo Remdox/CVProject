@@ -39,13 +39,13 @@ int getLabels(vector<string>* labels, string labelPath){
 
 void setViewsKeypoints(ObjModel& model){
     for(modelView& view : model.views){
-        view.keypoints = SIFT_PCA::detectKeypoints(view.image, view.mask);
+        view.keypoints = SIFTDetector::detectKeypoints(view.image, view.mask);
     }
 }
 
 void setViewsDescriptors(ObjModel& model){
     for(modelView& view : model.views){
-        view.descriptors = SIFT_PCA::computeDescriptors(view.image, view.keypoints);
+        view.descriptors = SIFTDetector::computeDescriptors(view.image, view.keypoints);
     }
 }
 
@@ -73,7 +73,6 @@ Mat meanShiftSegmentation(Mat &src){
                 Mat floodMask = Mat::zeros(segmented.rows + 2, segmented.cols + 2, CV_8UC1);
                 Rect rect;
 
-                // Flood fill con tolleranza colore
                 int flags = 8 | FLOODFILL_MASK_ONLY | FLOODFILL_FIXED_RANGE;
                 floodFill(segmented, floodMask, Point(x, y), Scalar(), &rect,
                          Scalar(40, 40, 40), Scalar(40, 40, 40), flags);
@@ -138,7 +137,7 @@ Mat meanShiftSegmentation(Mat &src){
     Mat risultato;
     src.copyTo(risultato, mergedMask);
 
-    cout << "Trovati " << segmentNumber << " segmenti principali!" << endl;
+    cout << segmentNumber << " segments found!" << endl;
     return mergedMask;
 }
 
@@ -157,10 +156,10 @@ Mat segmentImgBackground(Mat &src){
 }
 
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@ SIFT_PCA Class @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@ SIFTDetector Class @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // static variabile definition
-Ptr<SIFT> SIFT_PCA::sift = SIFT::create(0,
+Ptr<SIFT> SIFTDetector::sift = SIFT::create(0,
                                         3,
                                         0.04,
                                         10,
@@ -168,7 +167,7 @@ Ptr<SIFT> SIFT_PCA::sift = SIFT::create(0,
                                         false);
 
 // static methods
-vector<KeyPoint> SIFT_PCA::detectKeypoints_canny(Mat& img) {
+vector<KeyPoint> SIFTDetector::detectKeypoints_canny(Mat& img) {
     Mat grayImg, edges, mask;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
 
@@ -181,7 +180,7 @@ vector<KeyPoint> SIFT_PCA::detectKeypoints_canny(Mat& img) {
 }
 
 // to use for the testImg (I actually could merge them into one, but that would break the code of my collegues and I don't want to waste their time changing their code too many times)
-vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img){
+vector<KeyPoint> SIFTDetector::detectKeypoints(Mat& img){
     Mat grayImg;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
 
@@ -196,7 +195,7 @@ vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img){
 }
 
 // to use for the models
-vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img, Mat& mask) {
+vector<KeyPoint> SIFTDetector::detectKeypoints(Mat& img, Mat& mask) {
     Mat grayImg;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
 
@@ -210,7 +209,7 @@ vector<KeyPoint> SIFT_PCA::detectKeypoints(Mat& img, Mat& mask) {
     return keypoints;
 }
 
-Mat SIFT_PCA::computeDescriptors(Mat& img, vector<KeyPoint> keypoints){
+Mat SIFTDetector::computeDescriptors(Mat& img, vector<KeyPoint> keypoints){
     Mat grayImg;
     cvtColor(img, grayImg, COLOR_BGR2GRAY);
     Mat descriptors;

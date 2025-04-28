@@ -54,8 +54,8 @@ int main(int argc, char** argv){
         cerr << "No image given as parameter\n";
         return -1;
     }
-    namedWindow(WINDOWNAME);
-    imshow(WINDOWNAME, testImg);
+    // namedWindow(WINDOWNAME);
+    // imshow(WINDOWNAME, testImg);
 
     ObjModel drillModel;
     ObjModel sugarModel;
@@ -76,7 +76,7 @@ int main(int argc, char** argv){
     /*Mat imggtest = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_color.png");
     //vector<KeyPoint> testImgKpts = SIFT_PfiCA::detectKeypoints(testImg);
     Mat test = imread("../data/object_detection_dataset/006_mustard_bottle/models/view_60_003_mask.png");*/
-    vector<KeyPoint> testImgKpts = SIFT_PCA::detectKeypoints(testImg);
+    vector<KeyPoint> testImgKpts = SIFTDetector::detectKeypoints(testImg);
     Mat outputImg = testImg.clone();
     drawKeypoints(testImg, testImgKpts, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
     imwrite("../output/keypoints.png", outputImg);
@@ -93,7 +93,7 @@ int main(int argc, char** argv){
         outputImg = view.image.clone();
         drawKeypoints(view.image,
                   view.keypoints, outputImg, Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        string file = "../output/view_" + to_string(ind) +  + ".png";
+        string file = "../output/views/view_" + to_string(ind) +  + ".png";
         imwrite(file, outputImg);
         ind++;
     }
@@ -147,7 +147,7 @@ int main(int argc, char** argv){
     //ObjMetric metric = computeMetrics(imgPath, labelPath, objType, rectFound);
     //metric.toString();
 
-    waitKey(0);
+    // waitKey(0);
     return(0);
 }
 

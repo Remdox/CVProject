@@ -15,8 +15,8 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
     Mat image = img->clone();
 
     // set keypoints and descriptors of test's image and model
-    vector<KeyPoint> imageKeypoints = SIFT_PCA::detectKeypoints(image);
-    Mat imageDescriptors = SIFT_PCA::computeDescriptors(image, imageKeypoints);
+    vector<KeyPoint> imageKeypoints = SIFTDetector::detectKeypoints(image);
+    Mat imageDescriptors = SIFTDetector::computeDescriptors(image, imageKeypoints);
     setViewsKeypoints(models);
     setViewsDescriptors(models);
 
@@ -33,7 +33,7 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         matcher -> knnMatch(view.descriptors, imageDescriptors, matches, 2);
 
         // Lowe's ratio test
-        const float ratioTresh = 0.9f;
+        const float ratioTresh = 0.7f;
         vector<DMatch> goodMatches;
         for(size_t j = 0; j < matches.size(); j++){
             if(matches[j][0].distance < ratioTresh * matches[j][1].distance){
@@ -64,6 +64,7 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         homography = findHomography(objectPoints, scenePoints, RANSAC, 10.0, maskInliers);
         if (homography.empty()) {
             cout << "Homography is empty!\n";
+            return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
         }
     } else {
         cout << "Not enough matches found: " << bestMatches.size() << "\n";
@@ -107,8 +108,9 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         line(imageMatches, sceneCorners[i] + modelOffset, sceneCorners[(i + 1) % 4] + modelOffset, Scalar(0, 255, 0), 2);
     }
 
-    imshow("Matches and Bounding Box", imageMatches);
-    waitKey(0);
+    //imshow("Matches and Bounding Box", imageMatches);
+    // waitKey(0);
+    imwrite("../output/output.jpg", imageMatches);
 
     vector<Point> points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};
     return points;
