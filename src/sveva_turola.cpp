@@ -64,6 +64,7 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
         homography = findHomography(objectPoints, scenePoints, RANSAC, 10.0, maskInliers);
         if (homography.empty()) {
             cout << "Homography is empty!\n";
+            return {Point(INT_MIN, INT_MIN), Point(INT_MIN, INT_MIN)};
         }
     } else {
         cout << "Not enough matches found: " << bestMatches.size() << "\n";
@@ -109,6 +110,7 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
 
     imshow("Matches and Bounding Box", imageMatches);
     waitKey(0);
+    imwrite("../output/output.jpg", imageMatches);
 
     vector<Point> points = {boundingRect(sceneCorners).tl(), boundingRect(sceneCorners).br()};
     return points;
