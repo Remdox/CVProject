@@ -30,7 +30,7 @@ int alternativeMain();
 
 int main(int argc, char** argv){
     //Usato per fare il batch
-    //return alternativeMain();
+    return alternativeMain();
     if(argc < 3){
         cerr << "Usage: <test image path> <object_detection_dataset path>\n";
         return -1;
@@ -239,6 +239,8 @@ int alternativeMain() {
 
         // Calcola la mean IoU per questo tipo
         double meanIoU = metricsList.empty() ? 0.0 : sumIoU / metricsList.size();
+
+        cout << toString(type) <<  " mIoU: " << meanIoU << endl;
         metricsDict[type] = std::make_pair(std::move(metricsList), meanIoU);
     }
 
