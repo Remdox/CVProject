@@ -30,14 +30,16 @@ int alternativeMain();
 
 int main(int argc, char** argv){
     // return alternativeMain();
-    if(argc < 3){
-        cerr << "Usage: <test image path> <object_detection_dataset path>\n";
-        return -1;
+    // if(argc < 3){
+    //     cerr << "Usage: <test image path> <object_detection_dataset path>\n";
+    //     return -1;
 
-    }
+    // }
     const string WINDOWNAME = "Test image";
-    string imgPath     = argv[1];
-    string datasetPath = argv[2];
+    // string imgPath     = argv[1];
+    // string datasetPath = argv[2];
+    string imgPath     = "../data/object_detection_dataset/006_mustard_bottle/test_images/6_0001_000952-color.jpg";
+    string datasetPath = "../data/object_detection_dataset/";
     const string drillViewsPath   = datasetPath + "035_" + toString(ImgObjType::power_drill)    + "/models/*_color.png";
     const string sugarViewsPath   = datasetPath + "004_" + toString(ImgObjType::sugar_box)      + "/models/*_color.png";
     const string mustardViewsPath = datasetPath + "006_" + toString(ImgObjType::mustard_bottle) + "/models/*_color.png";
@@ -109,12 +111,29 @@ int main(int argc, char** argv){
     vector<Point> drillPoints = featureMatching(&testImg, drillModel);
     vector<Point> sugarPoints = featureMatching(&testImg, sugarModel);
 
-    /*Point mustardTl = mustardPoints[0];
-    Point mustardBr = mustardPoints[1];
-    Point drillTl = drillPoints[0];
-    Point drillBr = drillPoints[1];
-    Point sugarTl = sugarPoints[0];
-    Point sugarBr = sugarPoints[1];*/
+    // ... (dove hai già popolato sugarPoints, mustardPoints e drillPoints)
+    Point sugarTl    = sugarPoints[0];
+    Point sugarBr    = sugarPoints[1];
+    Point mustardTl  = mustardPoints[0];
+    Point mustardBr  = mustardPoints[1];
+    Point drillTl    = drillPoints[0];
+    Point drillBr    = drillPoints[1];
+
+    // Costruisci i Rect
+    Rect rectSugar   = makeRect(sugarTl.x,    sugarTl.y,    sugarBr.x,    sugarBr.y);
+    Rect rectMustard = makeRect(mustardTl.x,  mustardTl.y,  mustardBr.x,  mustardBr.y);
+    Rect rectDrill   = makeRect(drillTl.x,    drillTl.y,    drillBr.x,    drillBr.y);
+
+    // Calcola le 3 metriche
+    ObjMetric metricSugar   = computeMetrics(imgPath, labelPath, ImgObjType::sugar_box,       rectSugar);
+    ObjMetric metricMustard = computeMetrics(imgPath, labelPath, ImgObjType::mustard_bottle, rectMustard);
+    ObjMetric metricDrill   = computeMetrics(imgPath, labelPath, ImgObjType::power_drill,    rectDrill);
+
+    // Stampa a video
+    std::cout << "Sugar box metric: "    << metricSugar.toString()   << std::endl;
+    std::cout << "Mustard bottle metric: "<< metricMustard.toString() << std::endl;
+    std::cout << "Power drill metric: "   << metricDrill.toString()   << std::endl;
+
 
     //ImgObjType objType = ImgObjType::sugar_box; //Leggiamo un altro param di input ?
     

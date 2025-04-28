@@ -71,8 +71,11 @@ namespace HermannLib{
     ObjMetric computeMetrics(string sourceImgPath, string labelPath, ImgObjType object, const Rect& a)
     {
         vector<array<int,4>>  values = extractBoundingBoxes(labelPath, toString(object));
-        if(values.size() == 0)
-            throw std::runtime_error("Non ci sono oggetti di quel tipo in questa immagine");
+        if (values.empty()) {
+            std::cout << "Non ci sono oggetti di quel tipo in questa immagine" << std::endl;
+            return ObjMetric(object, 0, sourceImgPath);
+        }
+        
         Rect b = makeRect(values[0][0],values[0][1],values[0][2],values[0][3]);
         double IoU = computeIoU(a,b);
         return ObjMetric(object, IoU, sourceImgPath);
