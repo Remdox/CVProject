@@ -11,7 +11,7 @@
 using namespace std;
 using namespace cv;
 
-vector<Point> featureMatching(Mat* img, ObjModel& models){
+vector<Point> featureMatching(Mat* img, ObjModel& models, const std::string& destPath){
     Mat image = img->clone();
 
     // set keypoints and descriptors of test's image and model
@@ -109,7 +109,8 @@ vector<Point> featureMatching(Mat* img, ObjModel& models){
 
     //imshow("Matches and Bounding Box", imageMatches);
     //waitKey(0);
-    imwrite("../output/output.jpg", imageMatches);
+
+    cout << "Il file è stato salvato: " << imwrite(destPath, imageMatches) << endl;
 
     return points;
 }

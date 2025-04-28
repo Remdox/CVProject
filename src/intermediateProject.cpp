@@ -29,12 +29,14 @@ namespace fs = std::filesystem;
 int alternativeMain();
 
 int main(int argc, char** argv){
-    return alternativeMain();
-    // if(argc < 3){
-    //     cerr << "Usage: <test image path> <object_detection_dataset path>\n";
-    //     return -1;
+    //Usato per fare il batch
+    //return alternativeMain();
+    if(argc < 3){
+        cerr << "Usage: <test image path> <object_detection_dataset path>\n";
+        return -1;
+    }
 
-    // }
+
     const string WINDOWNAME = "Test image";
     // string imgPath     = argv[1];
     // string datasetPath = argv[2];
@@ -151,125 +153,94 @@ int main(int argc, char** argv){
     return(0);
 }
 
-
-int alternativeMain(){
+int alternativeMain() {
     const int length = 3;
-    std::array<ImgObjType, length> objTypes{
+    std::array<ImgObjType, length> objTypes {
         ImgObjType::sugar_box,
         ImgObjType::mustard_bottle,
         ImgObjType::power_drill
     };
 
     const std::string inputRootFolder  = "./../data/object_detection_dataset/";
-    const std::string outputFolderPath = "./output";
+    const std::string outputFolderPath = "./../output";
 
-    // 1) reset della cartella output
+    // Ripulisci e ricrea la cartella di output
     fs::path outputDir(outputFolderPath);
-    if (fs::exists(outputDir)) {
-        fs::remove_all(outputDir);
-    }
+    if (fs::exists(outputDir)) fs::remove_all(outputDir);
     fs::create_directories(outputDir);
 
-    // 2) dizionario metriche
     std::map<ImgObjType, std::pair<std::vector<ObjMetric>, double>> metricsDict;
 
+    // Ciclo sui tre tipi di oggetto
     for (auto const& type : objTypes) {
-        // 2a) creazione della sottocartella output/type
         fs::path outSubdir = outputDir / toString(type);
         fs::create_directories(outSubdir);
 
-        // container temporanei per questo tipo
         std::vector<ObjMetric> metricsList;
         double sumIoU = 0.0;
 
-        // percorsi dati
-        
-
-
-        fs::path dataFolder   = fs::path(inputRootFolder) / getFolderNameData(type);
+        // Percorsi di immagini, etichette e modelli
+        fs::path dataFolder    = fs::path(inputRootFolder) / getFolderNameData(type);
         fs::path testImagesDir = dataFolder / "test_images";
         fs::path labelsDir     = dataFolder / "labels";
         fs::path modelsDir     = dataFolder / "models" / "*_color.png";
 
-        if (!fs::is_directory(testImagesDir) || !fs::is_directory(labelsDir)) {
-            throw std::runtime_error("Directory test_images o labels mancante per " 
-                                     + toString(type));
-        }
+        if (!fs::is_directory(testImagesDir) || !fs::is_directory(labelsDir))
+            throw std::runtime_error("Directory test_images o labels mancante per " + toString(type));
 
         const std::string suffixImg   = "color.jpg";
         const std::string suffixLabel = "box.txt";
+
         ObjModel objModel;
         objModel.type = type;
         getModelViews(modelsDir.string(), objModel);
 
-        // 2b) ciclo sulle immagini di test
+        // Ciclo su ogni immagine di test
         for (auto const& testEntry : fs::directory_iterator(testImagesDir)) {
-            if (!testEntry.is_regular_file()) 
-                continue;
+            if (!testEntry.is_regular_file()) continue;
 
             std::string imgName = testEntry.path().filename().string();
             if (imgName.size() <= suffixImg.size() ||
-                imgName.substr(imgName.size() - suffixImg.size()) != suffixImg) {
-                continue; // pattern non valido
-            }
+                imgName.substr(imgName.size() - suffixImg.size()) != suffixImg)
+                continue;
 
-            // path label corrispondente
-            fs::path labelPath = labelsDir 
-                               / (imgName.substr(0, imgName.size() - suffixImg.size())
-                                  + suffixLabel);
-
-            if (!fs::exists(labelPath)) {
+            fs::path labelPath = labelsDir /
+                (imgName.substr(0, imgName.size() - suffixImg.size()) + suffixLabel);
+            if (!fs::exists(labelPath))
                 throw std::runtime_error("Label file mancante: " + labelPath.string());
-            }
 
-            // Detection and Matching
+            // Leggi l’immagine
             std::string testImgPath = testEntry.path().string();
             cv::Mat testImgData = cv::imread(testImgPath);
-            vector<Point> points = featureMatching(&testImgData, objModel);
 
-            int xmintest = points[0].x, ymintest = points[0].y, xmaxtest = points[1].x, ymaxtest = points[1].y;
+            // Prepara i nomi dei file di output
+            std::string baseName = imgName.substr(0, imgName.size() - suffixImg.size());
+            fs::path dataFilePath = outSubdir / (baseName + "data.txt");
+            fs::path bbFilePath   = outSubdir / (baseName + "bb.jpg");
 
-            // Metricas (finto rect)
-            cv::Rect foundRect = makeRect(xmintest, ymintest, xmaxtest, ymaxtest);
+            // Matching, bounding‐box e salvataggio immagine
+            std::vector<Point> points = featureMatching(&testImgData, objModel, bbFilePath.string());
 
-            ObjMetric metric = computeMetrics(
-                testImgPath, labelPath.string(), type, foundRect
-            );
+            int xmintest = points[0].x, ymintest = points[0].y;
+            int xmaxtest = points[1].x, ymaxtest = points[1].y;
 
-            cout << metric.toString() << endl;
+            Rect foundRect = makeRect(xmintest, ymintest, xmaxtest, ymaxtest);
+            ObjMetric metric = computeMetrics(testImgPath, labelPath.string(), type, foundRect);
+            std::cout << metric.toString() << std::endl;
 
-            // raccolta metriche
             metricsList.push_back(metric);
             sumIoU += metric.getIoU();
 
-            // ———————— SCRITTURA FILE “data.txt” ————————
-            //SALVARE QUA L'IMMAGINE CON LA BOUNDING BOX
-            // genero il nome: "<id>-data.txt"
-            std::string dataFileName = 
-                imgName.substr(0, imgName.size() - suffixImg.size()) + "data.txt";
-            fs::path dataFilePath = outSubdir / dataFileName;
-
+            // Scrivi le coordinate su data.txt
             std::ofstream ofs(dataFilePath);
-            if (!ofs) {
-                throw std::runtime_error("Impossibile aprire file: " 
-                                         + dataFilePath.string());
-            }
-            // salvo le coordinate del rect
-            ofs << xmintest << " " 
-                << ymintest << " " 
-                << xmaxtest << " " 
-                << ymaxtest << "\n";
-            ofs.close();
-            // ————————————————————————————————
+            if (!ofs) throw std::runtime_error("Impossibile aprire file: " + dataFilePath.string());
+            ofs << xmintest << " " << ymintest << " " << xmaxtest << " " << ymaxtest << "\n";
         }
 
-        // 2c) calcolo mIoU e popolo la mappa
-        double meanIoU = metricsList.empty()
-                         ? 0.0
-                         : sumIoU / static_cast<double>(metricsList.size());
+        // Calcola la mean IoU per questo tipo
+        double meanIoU = metricsList.empty() ? 0.0 : sumIoU / metricsList.size();
         metricsDict[type] = std::make_pair(std::move(metricsList), meanIoU);
     }
 
     return 0;
 }
-
